@@ -39,12 +39,45 @@ object LetterDic {
     2993 -> "ற", 2980 -> "த")
 
   val vallinam = Set(letterToCode get "க", letterToCode get "ச்", letterToCode get "ட்",
-    letterToCode get "த", letterToCode get "ப்", letterToCode get "ற்")
+    letterToCode get "த", letterToCode get "ப்", letterToCode get "ற்").map(x => x.get)
 
   val mellinam = Set(letterToCode get "ங்", letterToCode get "ஞ", letterToCode get "ந்",
-    letterToCode get "ம", letterToCode get "ண்", letterToCode get "ன")
+    letterToCode get "ம", letterToCode get "ண்", letterToCode get "ன").map(x => x.get)
 
   val idaiyinam = Set(letterToCode get "ய", letterToCode get "ர", letterToCode get "ல்",
-    letterToCode get "வ", letterToCode get "ழ", letterToCode get "ள")
+    letterToCode get "வ", letterToCode get "ழ", letterToCode get "ள").map(x => x.get)
+
+  object IfElseImplicit {
+
+    val compareFn: (Set[Int], Set[Int]) => (Int) => Option[Set[Int]] = (a: Set[Int], b: Set[Int]) => (c: Int) =>
+      if (a.contains(c)) Some(a) else if (b.contains(c)) Some(b) else None
+
+    implicit class IfElse(coll: Set[Int]) {
+      def >>(anotherColl: Set[Int]) = compareFn(coll, anotherColl)
+    }
+
+    implicit class Predicate(x: (Int => Option[Set[Int]])) {
+      def |^|(a: Int): Option[Set[Int]] = {
+        x(a)
+      }
+    }
+
+  }
+
+  import IfElseImplicit._
+
+  val x = (vallinam >> mellinam) |^| 23
+
+
+  def find(letterCode: Int): Set[Int] = {
+    val compareFn = (x: Int) => x == letterCode
+    if (vallinam.contains(letterCode)) {
+      vallinam
+    } else if (mellinam.contains(letterCode)) {
+      mellinam
+    } else {
+      idaiyinam
+    }
+  }
 }
 
